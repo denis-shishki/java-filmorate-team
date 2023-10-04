@@ -23,14 +23,14 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public List<Director> getAllDirectors() {
-        final String sqlQuery = "SELECT director_id, director_name FROM directors";
-        return jdbcTemplate.query(sqlQuery, this::makeDirector);
+        final String sqlQuery = "SELECT * FROM directors";
+        return jdbcTemplate.query(sqlQuery, this::toMap);
     }
 
     @Override
     public Optional<Director> findDirector(int directorId) {
         final String sqlQuery = "SELECT director_id, director_name FROM directors WHERE director_id = ?";
-        final List<Director> directors = jdbcTemplate.query(sqlQuery, this::makeDirector, directorId);
+        final List<Director> directors = jdbcTemplate.query(sqlQuery, this::toMap, directorId);
 
         if (directors.isEmpty()) return Optional.empty();
         return directors.stream().findFirst();
@@ -39,7 +39,7 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Director createDirector(Director director) {
         final String sqlQuery = "INSERT INTO directors (director_name) VALUES (?)";
-        return jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> toMap(rs), director.getId());
+        return jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeDirector(rs), director.getId());
     }
 
     @Override
@@ -74,11 +74,11 @@ public class DirectorDbStorage implements DirectorStorage {
         }, films.stream().map(Film::getId).toArray());
     }
 
-    private Director makeDirector(ResultSet rs, int row) throws SQLException {
+    private Director toMap(ResultSet rs, int row) throws SQLException {
         return new Director(rs.getInt("director_id"), rs.getString("director_name"));
     }
 
-    private Director toMap(ResultSet rs) throws SQLException {
+    private Director makeDirector(ResultSet rs) throws SQLException {
         return new Director(rs.getInt("director_id"), rs.getString("director_name"));
     }
 }

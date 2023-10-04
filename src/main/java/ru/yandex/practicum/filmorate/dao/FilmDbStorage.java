@@ -102,7 +102,7 @@ public class FilmDbStorage implements FilmStorage {
                 "JOIN film_director AS fd ON f.film_id = fd.film_id " +
                 "JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                 "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
-                "WHERE fd.director_id = ?" +
+                "WHERE fd.director_id = ? " +
                 "GROUP BY f.film_id ";
 
         if (SortBy.YEAR.value.equals(sortBy)) {
