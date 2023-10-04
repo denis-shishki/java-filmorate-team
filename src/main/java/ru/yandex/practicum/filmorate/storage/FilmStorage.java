@@ -19,4 +19,6 @@ public interface FilmStorage {
 
     List<Film> getTopRatedFilms(int count);
 
+    List<Film> getSortedFilms(int directorId, String sortBy);
+
 }
