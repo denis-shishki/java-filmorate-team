@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -21,6 +22,7 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final GenreService genreService;
     private final UserService userService;
+    private final DirectorService directorService;
 
     public List<Film> findAllFilms() {
         List<Film> allFilms = filmStorage.findAllFilms();
@@ -56,6 +58,16 @@ public class FilmService {
         return filmStorage.getTopRatedFilms(count);
     }
 
+    public List<Film> getSortedFilms(int directorId, String sortBy) {
+        List<Film> sortedFilms = filmStorage.getSortedFilms(directorId, sortBy);
+        if (sortedFilms.isEmpty()) {
+            throw new DirectorNotFoundException("Режиссёр не найден.");
+        }
+        directorService.setDirectors(sortedFilms);
+        genreService.setGenres(sortedFilms);
+        return sortedFilms;
+    }
+
     private void validateFilm(Film film) {
         if (film.getName().isEmpty()) {
             throw new ValidationException("Название фильма не может быть пустым.");
@@ -78,6 +90,6 @@ public class FilmService {
         User user = userService.findUser(userId);
         User friend = userService.findUser(friendId);
 
-         return filmStorage.getCommonFilms(userId, friendId);
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 }

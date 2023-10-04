@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -12,7 +14,11 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -34,6 +40,7 @@ public class FilmDbStorage implements FilmStorage {
                 .usingGeneratedKeyColumns("film_id");
         film.setId(simpleJdbcInsert.executeAndReturnKey(toMap(film)).intValue());
         writeGenres(film);
+        writeDirector(film);
         return film;
     }
 
@@ -53,6 +60,8 @@ public class FilmDbStorage implements FilmStorage {
         );
         deleteAllGenres(film.getId());
         writeGenres(film);
+        deleteDirector(film.getId());
+        writeDirector(film);
         return film;
     }
 
@@ -69,8 +78,7 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                 "WHERE film_id = ? ";
         final List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilm, filmId);
-        Optional<Film> film = films.stream().findFirst();
-        return film;
+        return films.stream().findFirst();
     }
 
     @Override
@@ -108,6 +116,26 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery2, this::makeFilm);
     }
 
+    @Override
+    public List<Film> getSortedFilms(int directorId, String sortBy) {
+        final String sqlQuery = "SELECT *, COUNT(*) AS likes " +
+                "FROM films AS f " +
+                "JOIN film_director AS fd ON f.film_id = fd.film_id " +
+                "JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "WHERE fd.director_id = ?" +
+                "GROUP BY f.film_id ";
+
+        if (sortBy.equals("year")) {
+            return jdbcTemplate.query(sqlQuery + "ORDER BY f.release_date", this::makeFilm, directorId);
+        }
+        if (sortBy.equals("likes")) {
+            return jdbcTemplate.query(sqlQuery + "ORDER BY likes", this::makeFilm, directorId);
+        } else {
+            throw new ValidationException("Некорректный параметр сортировки.");
+        }
+    }
+
     private void writeGenres(Film film) {
         if (null == film.getGenres() || film.getGenres().isEmpty()) return;
         List<Genre> genres = new ArrayList<>(film.getGenres());
@@ -125,6 +153,25 @@ public class FilmDbStorage implements FilmStorage {
     private void deleteAllGenres(Integer id) {
         final String sqlQueryDelete = "DELETE FROM film_genre WHERE film_id = ?";
         jdbcTemplate.update(sqlQueryDelete, id);
+    }
+
+    private void writeDirector(Film film) {
+        if (film.getDirectors() == null || film.getDirectors().isEmpty()) return;
+        List<Director> directors = new ArrayList<>(film.getDirectors());
+        jdbcTemplate.batchUpdate(
+                "INSERT INTO film_director (film_id, director_id) VALUES (?, ?); ",
+                directors,
+                directors.size(),
+                (PreparedStatement ps, Director director) -> {
+                    ps.setInt(1, film.getId());
+                    ps.setInt(2, director.getId());
+                }
+        );
+    }
+
+    private void deleteDirector(int filmId) {
+        final String sqlQueryDelete = "DELETE FROM film_director WHERE film_id = ?";
+        jdbcTemplate.update(sqlQueryDelete, filmId);
     }
 
     private Map<String, Object> toMap(Film film) {
