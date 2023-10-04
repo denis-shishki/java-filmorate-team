@@ -66,5 +66,4 @@ public class FilmController {
                                      @RequestParam(name = "friendId") Integer friendId) {
         return filmService.getCommonFilms(userId, friendId);
     }
-
 }
