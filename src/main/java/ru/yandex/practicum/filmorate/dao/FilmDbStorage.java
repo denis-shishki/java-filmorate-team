@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.SortBy;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.PreparedStatement;
@@ -104,10 +105,10 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE fd.director_id = ?" +
                 "GROUP BY f.film_id ";
 
-        if (sortBy.equals("year")) {
+        if (SortBy.YEAR.value.equals(sortBy)) {
             return jdbcTemplate.query(sqlQuery + "ORDER BY f.release_date", this::makeFilm, directorId);
         }
-        if (sortBy.equals("likes")) {
+        if (SortBy.LIKES.value.equals(sortBy)) {
             return jdbcTemplate.query(sqlQuery + "ORDER BY likes", this::makeFilm, directorId);
         } else {
             throw new ValidationException("Некорректный параметр сортировки.");
