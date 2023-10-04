@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final GenreService genreService;
+    private final UserService userService;
 
     public List<Film> findAllFilms() {
         List<Film> allFilms = filmStorage.findAllFilms();
@@ -72,4 +74,10 @@ public class FilmService {
         }
     }
 
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        User user = userService.findUser(userId);
+        User friend = userService.findUser(friendId);
+
+         return filmStorage.getCommonFilms(userId, friendId);
+    }
 }

@@ -12,11 +12,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -73,7 +69,8 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                 "WHERE film_id = ? ";
         final List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilm, filmId);
-        return films.stream().findFirst();
+        Optional<Film> film = films.stream().findFirst();
+        return film;
     }
 
     @Override
@@ -87,6 +84,28 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY COUNT(l.user_id) DESC " +
                 "LIMIT ? ";
         return jdbcTemplate.query(sqlQuery, this::makeFilm, count);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+
+        final String sqlQuery = "SELECT film_id FROM likes WHERE user_id=?";
+
+        List<Integer> likesFirstUser = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> rs.getInt("film_id"), userId);
+        List<Integer> likesSecondUser = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> rs.getInt("film_id"), friendId);
+
+        String[] sharedFilms = likesFirstUser.stream()
+                .filter(likesSecondUser::contains)
+                .map(String::valueOf)
+                .toArray(String[]::new);
+        String argsList = String.join(",", sharedFilms);
+
+        String sqlQuery2 = String.format("SELECT * FROM films " +
+                "JOIN mpa AS m ON films.mpa_id = m.mpa_id " +
+                "WHERE film_id IN (%s)", argsList);
+
+
+        return jdbcTemplate.query(sqlQuery2, this::makeFilm);
     }
 
     private void writeGenres(Film film) {
