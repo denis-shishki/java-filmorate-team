@@ -149,5 +149,4 @@ public class UserDbStorage implements UserStorage {
                 .birthday(resultSet.getDate("birthday").toLocalDate())
                 .build();
     }
-
 }

@@ -19,4 +19,5 @@ public interface FilmStorage {
 
     List<Film> getTopRatedFilms(int count);
 
+    List<Film> getCommonFilms(Integer userId, Integer friendId);
 }
