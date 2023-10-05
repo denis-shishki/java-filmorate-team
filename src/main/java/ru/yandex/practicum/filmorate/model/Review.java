@@ -14,15 +14,15 @@ import javax.validation.constraints.Positive;
 @EqualsAndHashCode
 public class Review {
 
-    private int reviewId;
+    private int id;
     @NotNull(message = "Описание не может быть пустым")
     private String content;
     @NotNull(message = "Отзыв должен быть положительным или отрицательным")
     private Boolean isPositive;
-    @NotNull
+    @NotNull(message = "id пользователя не может быть пустым")
     @Positive(message = "id пользователя не может быть отрицательным")
     private Integer userId;
-    @NotNull
+    @NotNull(message = "id фильма не может быть пустым")
     @Positive(message = "id фильма не может быть отрицательным")
     private Integer filmId;
     private int useful;

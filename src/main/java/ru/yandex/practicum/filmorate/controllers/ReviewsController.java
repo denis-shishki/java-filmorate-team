@@ -1,11 +1,24 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.service.ReviewService;
 
-@Controller
+import javax.validation.Valid;
+
+@RestController
+@RequestMapping("/review")
 @RequiredArgsConstructor
-@RequestMapping("/reviews")
 public class ReviewsController {
+
+    private final ReviewService reviewService;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Review createReview(@Valid @RequestBody Review review) {
+        return reviewService.createReview(review);
+    }
+
 }
