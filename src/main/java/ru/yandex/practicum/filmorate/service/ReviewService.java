@@ -35,9 +35,15 @@ public class ReviewService {
         log.info("Поступил запрос на поиск отзыва по id = {}", id);
 
         Review review = reviewStorage.findById(id)
-                                  .orElseThrow(() -> new ReviewNotFoundException("Запрашиваемый отзыв не существует"));
+                .orElseThrow(() -> new ReviewNotFoundException("Запрашиваемый отзыв не существует"));
 
         log.info("Отзыв с id = {} успешно найден", id);
         return review;
+    }
+
+    public Review updateReview(Review review) {
+        log.info("Поступил запрос на обновление отзыва id = {}, с телом = {}", review.getId(), review);
+
+        return reviewStorage.update(review);
     }
 }
