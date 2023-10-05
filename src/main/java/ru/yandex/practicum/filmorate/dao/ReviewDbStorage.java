@@ -63,9 +63,29 @@ public class ReviewDbStorage implements ReviewStorage {
         return Optional.of(review);
     }
 
+    @Override
+    public Review update(Review review) {
+        final int reviewId = review.getId();
+        final String sql = "UPDATE review " +
+                "SET content = ?, is_positive = ?, user_id = ?, film_id = ?, useful = ?" +
+                "WHERE review_id = ?;";
+
+        jdbcTemplate.update(sql,
+                review.getContent(),
+                review.getIsPositive(),
+                review.getUserId(),
+                review.getFilmId(),
+                review.getUseful(),
+                reviewId
+        );
+
+        log.info("Отзыв = {} успешно обновлен", review.getId());
+        return review;
+    }
+
 
     @RequiredArgsConstructor
-    public class ReviewMapper implements RowMapper<Review> {
+    private class ReviewMapper implements RowMapper<Review> {
 
         @Override
         public Review mapRow(ResultSet rs, int rowNum) throws SQLException {

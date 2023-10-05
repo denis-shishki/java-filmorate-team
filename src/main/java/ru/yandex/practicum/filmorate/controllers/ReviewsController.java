@@ -26,4 +26,9 @@ public class ReviewsController {
         return reviewService.getReviewById(id);
     }
 
+    @PutMapping
+    public Review updateReview(@Valid @RequestBody Review review) {
+        return reviewService.updateReview(review);
+    }
+
 }
