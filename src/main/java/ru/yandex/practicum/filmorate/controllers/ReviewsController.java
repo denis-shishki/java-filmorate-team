@@ -21,4 +21,9 @@ public class ReviewsController {
         return reviewService.createReview(review);
     }
 
+    @GetMapping("/{id}")
+    public Review getReviewById(@PathVariable int id) {
+        return reviewService.getReviewById(id);
+    }
+
 }
