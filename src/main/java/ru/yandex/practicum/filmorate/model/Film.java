@@ -33,7 +33,6 @@ public class Film {
     @NotNull
     private Mpa mpa;
     private Set<Genre> genres;
-    private Set<Integer> likes;
     private Set<Director> directors;
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration, Mpa mpa) {

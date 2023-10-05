@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -141,7 +142,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void writeGenres(Film film) {
-        if (film.getGenres() == null || film.getGenres().isEmpty()) return;
+        if (film.getGenres() == null || film.getGenres().isEmpty()) {
+            film.setGenres(new HashSet<>());
+            return;
+        }
         List<Genre> genres = new ArrayList<>(film.getGenres());
         jdbcTemplate.batchUpdate(
                 "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?); ",
