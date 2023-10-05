@@ -48,7 +48,8 @@ public class ReviewDbStorage implements ReviewStorage {
         return saveReview;
     }
 
-    private Optional<Review> findById(int id) {
+    @Override
+    public Optional<Review> findById(int id) {
         String sql = "SELECT * FROM review WHERE review_id = ?;";
         Review review;
 
