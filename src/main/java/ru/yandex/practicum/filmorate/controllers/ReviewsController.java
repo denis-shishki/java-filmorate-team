@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import java.util.List;
 
 @RestController
 @RequestMapping("/reviews")
@@ -35,6 +37,17 @@ public class ReviewsController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteReview(@PathVariable("id") Integer id) {
         reviewService.deleteReview(id);
+    }
+
+    @GetMapping
+    public List<Review> getTopRatedFilms(@RequestParam(required = false) Integer filmId,
+                                         @RequestParam(required = false, defaultValue = "10") @Positive int count) {
+
+        if (filmId == null) {
+            return reviewService.getAllReviews();
+        }
+
+        return reviewService.getAllReviewsByFilm(filmId, count);
     }
 
 }

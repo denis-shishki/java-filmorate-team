@@ -10,9 +10,9 @@ import ru.yandex.practicum.filmorate.exceptions.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -92,6 +92,30 @@ public class ReviewDbStorage implements ReviewStorage {
         log.info("Запрос на удаление отзыва по id успешно отработан");
     }
 
+    @Override
+    public List<Review> getAll() {
+        final String sql = "SELECT review_id, content, is_positive, user_id, film_id, useful FROM review;";
+        return jdbcTemplate.query(sql, this::makeReview);
+    }
+
+    @Override
+    public List<Review> findReviewsByFilm(Integer filmId, int count) {
+        String sql = "SELECT review_id, content, is_positive, user_id, film_id, useful" +
+                " FROM review" +
+                " WHERE film_id = ?" +
+                " LIMIT ?;";
+        return jdbcTemplate.query(sql, this::makeReview, filmId, count);
+    }
+
+    private Review makeReview(ResultSet rs, int row) throws SQLException {
+        return new Review(rs.getInt("review_id"),
+                rs.getString("content"),
+                rs.getBoolean("is_positive"),
+                rs.getInt("user_id"),
+                rs.getInt("film_id"),
+                rs.getInt("useful")
+        );
+    }
 
     @RequiredArgsConstructor
     private class ReviewMapper implements RowMapper<Review> {
