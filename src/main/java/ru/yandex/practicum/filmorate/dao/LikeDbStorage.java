@@ -32,4 +32,10 @@ public class LikeDbStorage implements LikeStorage {
         final String sql = "INSERT INTO likes_review (review_id, user_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, id, userId);
     }
+
+    @Override
+    public void dislikeReview(Integer id, Integer userId) {
+        final String sql = "INSERT INTO likes_review (review_id, user_id) VALUES (?, ?)";
+        jdbcTemplate.update(sql, id, userId);
+    }
 }

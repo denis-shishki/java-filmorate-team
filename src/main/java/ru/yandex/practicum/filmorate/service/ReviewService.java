@@ -89,7 +89,6 @@ public class ReviewService {
 
         User user = userStorage.findUser(userId)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
-        final int like = 1;
         Review review;
         try {
             likeService.likeReviewByUser(id, userId);
@@ -102,6 +101,24 @@ public class ReviewService {
         } catch (DuplicateKeyException e) {
             throw new ReviewAlreadyLikedException("Ошибка при добавлении лайка отзыву, лайк уже существует");
         }
-        log.info("Лайк к отзыву = {} успешно добавлен полезность отзыва теперь = {}", id, review.getUseful());
+        log.info("Лайк к отзыву = {} успешно добавлен. Useful отзыва теперь = {}", id, review.getUseful());
+    }
+
+    public void disLikeReview(Integer id, Integer userId) {
+        User user = userStorage.findUser(userId)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+        Review review;
+        try {
+            likeService.dislikeReviewByUser(id, userId);
+
+            review = reviewStorage.findById(id)
+                    .orElseThrow(() -> new ReviewNotFoundException("Отзыв не найден"));
+            review.addDislikeToUseful();
+            reviewStorage.update(review);
+
+        } catch (DuplicateKeyException e) {
+            throw new ReviewAlreadyLikedException("Ошибка при добавлении дизлайка отзыву, лайк уже существует");
+        }
+        log.info("Дизлайк к отзыву = {} успешно добавлен. Useful отзыва теперь = {}", id, review.getUseful());
     }
 }
