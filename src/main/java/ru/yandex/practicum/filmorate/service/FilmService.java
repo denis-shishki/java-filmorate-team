@@ -12,7 +12,9 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -72,6 +74,13 @@ public class FilmService {
         }
     }
 
+    public List<Film> getTopFilmsByGivenSearch(String query, String by) {
+        List<Film> filmsByGivenSearch = filmStorage.getTopFilmsByGivenSearch(query, by);
+        genreService.setGenres(filmsByGivenSearch);
+        directorService.setDirectors(filmsByGivenSearch);
+        return filmsByGivenSearch;
+    }
+
     private void checkFilm(Integer id) {
         if (filmStorage.findFilm(id).isEmpty()) {
             throw new FilmNotFoundException("Фильм не найден.");
@@ -82,7 +91,7 @@ public class FilmService {
         User user = userService.findUser(userId);
         User friend = userService.findUser(friendId);
 
-         return filmStorage.getCommonFilms(userId, friendId);
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 
     public List<Film> getSortedFilms(Integer directorId, String sortBy) {
