@@ -11,4 +11,6 @@ public interface ReviewStorage {
     Optional<Review> findById(int id);
 
     Review update(Review review);
+
+    void delete(Integer id);
 }
