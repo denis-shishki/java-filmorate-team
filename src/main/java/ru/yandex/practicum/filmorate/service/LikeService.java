@@ -24,4 +24,10 @@ public class LikeService {
 
         likeDbStorage.likeReview(id, userId);
     }
+
+    public void dislikeReviewByUser(Integer id, Integer userId) {
+        log.info("Получен запрос для добавления дизлайка отзыву = {} от пользователя = {}", id, userId);
+
+        likeDbStorage.dislikeReview(id, userId);
+    }
 }

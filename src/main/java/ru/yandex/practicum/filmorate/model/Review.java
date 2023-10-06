@@ -31,4 +31,8 @@ public class Review {
     public void addLikeToUseful() {
         useful = useful + 1;
     }
+
+    public void addDislikeToUseful() {
+        useful = useful - 1;
+    }
 }

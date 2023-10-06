@@ -7,4 +7,6 @@ public interface LikeStorage {
     void deleteLike(Integer filmId, Integer userId);
 
     void likeReview(Integer id, int id1);
+
+    void dislikeReview(Integer id, Integer userId);
 }
