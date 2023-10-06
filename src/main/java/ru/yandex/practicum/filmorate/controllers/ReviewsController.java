@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.service.LikeService;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
@@ -16,6 +17,7 @@ import java.util.List;
 public class ReviewsController {
 
     private final ReviewService reviewService;
+    private final LikeService likeService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -48,6 +50,12 @@ public class ReviewsController {
         }
 
         return reviewService.getAllReviewsByFilm(filmId, count);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public void putLikeInReview(@PathVariable("id") Integer id,
+                                @PathVariable("userId") Integer userId) {
+        reviewService.likeReview(id, userId);
     }
 
 }
