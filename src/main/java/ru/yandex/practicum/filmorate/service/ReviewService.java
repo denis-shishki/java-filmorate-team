@@ -46,4 +46,12 @@ public class ReviewService {
 
         return reviewStorage.update(review);
     }
+
+    public void deleteReview(Integer id) {
+        log.info("Поступил запрос на удаление отзыва с id = {}", id);
+
+        Review review = reviewStorage.findById(id)
+                .orElseThrow(() -> new ReviewNotFoundException("Запрашиваемый отзыв не существует"));
+        reviewStorage.delete(id);
+    }
 }

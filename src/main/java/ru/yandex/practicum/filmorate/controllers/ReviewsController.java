@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.service.ReviewService;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/review")
+@RequestMapping("/reviews")
 @RequiredArgsConstructor
 public class ReviewsController {
 
@@ -29,6 +29,12 @@ public class ReviewsController {
     @PutMapping
     public Review updateReview(@Valid @RequestBody Review review) {
         return reviewService.updateReview(review);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteReview(@PathVariable("id") Integer id) {
+        reviewService.deleteReview(id);
     }
 
 }

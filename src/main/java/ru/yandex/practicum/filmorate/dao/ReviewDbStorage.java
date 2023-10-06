@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exceptions.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
@@ -81,6 +82,14 @@ public class ReviewDbStorage implements ReviewStorage {
 
         log.info("Отзыв = {} успешно обновлен", review.getId());
         return review;
+    }
+
+    @Override
+    public void delete(Integer id) {
+        final String sql = "DELETE FROM review WHERE review_id = ?;";
+        jdbcTemplate.update(sql, id);
+
+        log.info("Запрос на удаление отзыва по id успешно отработан");
     }
 
 
