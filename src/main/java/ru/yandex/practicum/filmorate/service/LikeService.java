@@ -36,4 +36,10 @@ public class LikeService {
 
         likeDbStorage.deleteLikeReview(id, userId);
     }
+
+    public void deleteDislikeReviewByUser(Integer id, Integer userId) {
+        log.info("Получен запрос для удаления дизлайка отзыву = {} от пользователя = {}", id, userId);
+
+        likeDbStorage.deleteDislikeReview(id, userId);
+    }
 }

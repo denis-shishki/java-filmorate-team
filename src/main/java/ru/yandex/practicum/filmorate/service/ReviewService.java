@@ -140,4 +140,22 @@ public class ReviewService {
         }
         log.info("Лайк к отзыву = {} успешно удален. Useful отзыва теперь = {}", id, review.getUseful());
     }
+
+    public void deleteDislikeReview(Integer id, Integer userId) {
+        User user = userStorage.findUser(userId)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+        Review review;
+        try {
+            likeService.deleteDislikeReviewByUser(id, userId);
+
+            review = reviewStorage.findById(id)
+                    .orElseThrow(() -> new ReviewNotFoundException("Отзыв не найден"));
+            review.addLikeToUseful();
+            reviewStorage.update(review);
+
+        } catch (DuplicateKeyException e) {
+            throw new ReviewAlreadyLikedException("Ошибка при удалении дизлайка отзыву");
+        }
+        log.info("Дизлайк к отзыву = {} успешно удален. Useful отзыва теперь = {}", id, review.getUseful());
+    }
 }

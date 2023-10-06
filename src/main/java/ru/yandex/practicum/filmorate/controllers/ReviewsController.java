@@ -71,4 +71,10 @@ public class ReviewsController {
         reviewService.deleteLikeReview(id, userId);
     }
 
+    @DeleteMapping("/{id}/dislike/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteDislikeInReview(@PathVariable("id") Integer id,
+                                      @PathVariable("userId") Integer userId) {
+        reviewService.deleteDislikeReview(id, userId);
+    }
 }
