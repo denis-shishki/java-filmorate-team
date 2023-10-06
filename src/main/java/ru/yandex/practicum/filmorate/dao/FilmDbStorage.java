@@ -213,13 +213,11 @@ public class FilmDbStorage implements FilmStorage {
         String qu = "'%" + query + "%'";
         String[] bySearch = by.split(",");
         if (bySearch.length == 1) {
-            for (String text : bySearch) {
-                if (text.contains("director")) {
-                    return String.format("WHERE lower(d.director_name) LIKE lower(%s)", qu);
-                }
-                if (text.contains("title")) {
-                    return String.format("WHERE lower(f.film_name) LIKE lower(%s)", qu);
-                }
+            if (bySearch[0].contains("director")) {
+                return String.format("WHERE lower(d.director_name) LIKE lower(%s)", qu);
+            }
+            if (bySearch[0].contains("title")) {
+                return String.format("WHERE lower(f.film_name) LIKE lower(%s)", qu);
             }
         }
         return String.format("WHERE lower(f.film_name) LIKE lower(%s) OR lower(d.director_name) LIKE lower(%s)", qu, qu);
