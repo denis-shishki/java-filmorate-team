@@ -11,4 +11,6 @@ public interface LikeStorage {
     void dislikeReview(Integer id, Integer userId);
 
     void deleteLikeReview(Integer id, Integer userId);
+
+    void deleteDislikeReview(Integer id, Integer userId);
 }

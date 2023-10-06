@@ -44,4 +44,10 @@ public class LikeDbStorage implements LikeStorage {
         final String sql = "DELETE FROM likes_review WHERE review_id = ? AND user_id = ?";
         jdbcTemplate.update(sql, id, userId);
     }
+
+    @Override
+    public void deleteDislikeReview(Integer id, Integer userId) {
+        final String sql = "DELETE FROM likes_review WHERE review_id = ? AND user_id = ?";
+        jdbcTemplate.update(sql, id, userId);
+    }
 }
