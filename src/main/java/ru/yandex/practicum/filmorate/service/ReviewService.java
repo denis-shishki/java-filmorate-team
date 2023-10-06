@@ -2,12 +2,15 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ReviewAlreadyLikedException;
 import ru.yandex.practicum.filmorate.exceptions.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -22,6 +25,7 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final LikeService likeService;
 
     public Review createReview(Review review) {
         log.info("Поступил запрос на создание отзыва с телом = {}", review);
@@ -81,5 +85,23 @@ public class ReviewService {
         return allReviewsByFilm;
     }
 
+    public void likeReview(Integer id, Integer userId) {
 
+        User user = userStorage.findUser(userId)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+        final int like = 1;
+        Review review;
+        try {
+            likeService.likeReviewByUser(id, userId);
+
+            review = reviewStorage.findById(id)
+                    .orElseThrow(() -> new ReviewNotFoundException("Отзыв не найден"));
+            review.addLikeToUseful();
+            reviewStorage.update(review);
+
+        } catch (DuplicateKeyException e) {
+            throw new ReviewAlreadyLikedException("Ошибка при добавлении лайка отзыву, лайк уже существует");
+        }
+        log.info("Лайк к отзыву = {} успешно добавлен полезность отзыва теперь = {}", id, review.getUseful());
+    }
 }

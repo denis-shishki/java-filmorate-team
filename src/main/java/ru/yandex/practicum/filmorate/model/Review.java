@@ -27,4 +27,8 @@ public class Review {
     private Integer filmId;
     private int useful;
 
+
+    public void addLikeToUseful() {
+        useful = useful + 1;
+    }
 }

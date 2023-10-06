@@ -69,3 +69,12 @@ create table if not exists review
     unique (user_id, film_id),
     useful integer not null
 );
+
+create table if not exists likes_review
+(
+    review_id integer not null,
+    user_id integer not null,
+    foreign key (review_id) references review (review_id) on delete cascade,
+    foreign key (user_id) references users (user_id) on delete cascade,
+    primary key (review_id, user_id)
+);
