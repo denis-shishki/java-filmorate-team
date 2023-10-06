@@ -99,7 +99,7 @@ public class ReviewService {
             reviewStorage.update(review);
 
         } catch (DuplicateKeyException e) {
-            throw new ReviewAlreadyLikedException("Ошибка при добавлении лайка отзыву, лайк уже существует");
+            throw new ReviewAlreadyLikedException("Ошибка при добавлении лайка отзыву");
         }
         log.info("Лайк к отзыву = {} успешно добавлен. Useful отзыва теперь = {}", id, review.getUseful());
     }
@@ -117,8 +117,27 @@ public class ReviewService {
             reviewStorage.update(review);
 
         } catch (DuplicateKeyException e) {
-            throw new ReviewAlreadyLikedException("Ошибка при добавлении дизлайка отзыву, лайк уже существует");
+            throw new ReviewAlreadyLikedException("Ошибка при добавлении дизлайка отзыву");
         }
         log.info("Дизлайк к отзыву = {} успешно добавлен. Useful отзыва теперь = {}", id, review.getUseful());
+    }
+
+    public void deleteLikeReview(Integer id, Integer userId) {
+
+        User user = userStorage.findUser(userId)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+        Review review;
+        try {
+            likeService.deleteLikeReviewByUser(id, userId);
+
+            review = reviewStorage.findById(id)
+                    .orElseThrow(() -> new ReviewNotFoundException("Отзыв не найден"));
+            review.addDislikeToUseful();
+            reviewStorage.update(review);
+
+        } catch (DuplicateKeyException e) {
+            throw new ReviewAlreadyLikedException("Ошибка при удалении лайка отзыву");
+        }
+        log.info("Лайк к отзыву = {} успешно удален. Useful отзыва теперь = {}", id, review.getUseful());
     }
 }
