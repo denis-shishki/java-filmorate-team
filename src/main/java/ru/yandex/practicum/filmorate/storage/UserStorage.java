@@ -1,11 +1,16 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.Optional;
 
 public interface UserStorage {
+
+    void addEvent(Event event);
+
+    Collection<Event> findAllEventsByUserId(int userId);
 
     Collection<User> findAllUsers();
 

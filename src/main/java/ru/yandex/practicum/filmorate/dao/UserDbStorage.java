@@ -5,7 +5,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.constants.EventType;
+import ru.yandex.practicum.filmorate.constants.Operation;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -23,6 +26,40 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
+
+    @Override
+    public void addEvent(Event event) {
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("events")
+                .usingGeneratedKeyColumns("event_id");;
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("timestamp", event.getTimestamp());
+        parameters.put("user_id", event.getUserId());
+        parameters.put("event_Type_id", event.getEventType().getValue());
+        parameters.put("operation_id", event.getOperation().getValue());
+        parameters.put("entity_id", event.getEntityId());
+
+        simpleJdbcInsert.execute(parameters);
+    }
+
+    // Рассматриваем вариант где в ответ попадают все записи пользователя и только лайки с отзывами друзей.
+    // Еще есть вариант, где у пользователя будет выводиться только добавление и удаление друзей
+    @Override
+    public Collection<Event> findAllEventsByUserId(int userId) {
+        String sqlQuery = "SELECT * " +
+                          "FROM events " +
+                          "WHERE user_id = ? " +
+                          "OR user_id " +
+                          "IN(SELECT user_id " +
+                             "FROM users " +
+                             "WHERE user_id " +
+                             "IN(SELECT friend_id " +
+                                "FROM friends " +
+                                "WHERE user_id=?)) " +
+                          "AND event_type_id in (1,2)";
+        return new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeEvent, userId, userId));
+    }
 
     @Override
     public Collection<User> findAllUsers() {
@@ -147,6 +184,20 @@ public class UserDbStorage implements UserStorage {
                 .login(resultSet.getString("login"))
                 .name(resultSet.getString("name"))
                 .birthday(resultSet.getDate("birthday").toLocalDate())
+                .build();
+    }
+
+    private Event makeEvent(ResultSet resultSet, int rowNum) throws SQLException {
+        EventType eventType = EventType.fromValue(resultSet.getInt("event_type_id"));
+        Operation operation = Operation.fromValue(resultSet.getInt("operation_id"));
+
+        return Event.builder()
+                .timestamp(resultSet.getLong("timestamp"))
+                .userId(resultSet.getInt("user_id"))
+                .eventType(eventType)
+                .operation(operation)
+                .eventId(resultSet.getInt("event_id"))
+                .entityId(resultSet.getInt("entity_id"))
                 .build();
     }
 }
