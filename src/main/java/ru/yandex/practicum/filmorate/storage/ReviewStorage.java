@@ -11,11 +11,13 @@ public interface ReviewStorage {
 
     Optional<Review> findById(int id);
 
-    Review update(Review review);
+    Optional<Review> update(Review review);
 
     void delete(Integer id);
 
     List<Review> getAll();
 
     List<Review> findReviewsByFilm(Integer filmId, int count);
+
+    void updateLikeOrDislike(Review review);
 }
