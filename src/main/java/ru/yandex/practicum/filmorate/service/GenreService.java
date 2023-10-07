@@ -19,9 +19,7 @@ public class GenreService {
     }
 
     public Genre findGenreById(Integer genreId) {
-        return genreStorage.findGenreById(genreId).orElseThrow(
-                () -> new GenreNotFoundException("Жанр не найден")
-        );
+        return genreStorage.findGenreById(genreId).orElseThrow(() -> new GenreNotFoundException("Жанр не найден."));
     }
 
     public Genre createGenre(Genre genre) {
