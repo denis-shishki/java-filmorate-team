@@ -15,7 +15,10 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,8 +51,8 @@ public class ReviewService {
         return review;
     }
 
-    public Review updateReview(Review review) {
-        log.info("Поступил запрос на обновление отзыва id = {}, с телом = {}", review.getId(), review);
+    public Optional<Review> updateReview(Review review) {
+        log.info("Поступил запрос на обновление отзыва id = {}, с телом = {}", review.getReviewId(), review);
 
         return reviewStorage.update(review);
     }
@@ -65,7 +68,9 @@ public class ReviewService {
     public List<Review> getAllReviews() {
         log.info("Поступил запрос на получение всех отзывов в приложении");
 
-        return reviewStorage.getAll();
+        return reviewStorage.getAll().stream()
+                .sorted(Comparator.comparing(Review::getUseful).reversed())
+                .collect(Collectors.toList());
     }
 
     public List<Review> getAllReviewsByFilm(Integer filmId, int count) {
@@ -77,12 +82,15 @@ public class ReviewService {
         List<Review> allReviewsByFilm;
         try {
             allReviewsByFilm = reviewStorage.findReviewsByFilm(filmId, count);
+
             log.info("Запрос на получение отзывов к фильму = {}, в количестве = {} успешно обработан", filmId, count);
         } catch (RuntimeException e) {
             throw new RuntimeException("Произошла ошибка при поиске отзывов по id фильма");
         }
 
-        return allReviewsByFilm;
+        return allReviewsByFilm.stream()
+                .sorted(Comparator.comparing(Review::getUseful).reversed())
+                .limit(count).collect(Collectors.toList());
     }
 
     public void likeReview(Integer id, Integer userId) {
@@ -96,6 +104,7 @@ public class ReviewService {
             review = reviewStorage.findById(id)
                     .orElseThrow(() -> new ReviewNotFoundException("Отзыв не найден"));
             review.addLikeToUseful();
+            reviewStorage.updateLikeOrDislike(review);
             reviewStorage.update(review);
 
         } catch (DuplicateKeyException e) {
@@ -111,9 +120,11 @@ public class ReviewService {
         try {
             likeService.dislikeReviewByUser(id, userId);
 
+
             review = reviewStorage.findById(id)
                     .orElseThrow(() -> new ReviewNotFoundException("Отзыв не найден"));
             review.addDislikeToUseful();
+            reviewStorage.updateLikeOrDislike(review);
             reviewStorage.update(review);
 
         } catch (DuplicateKeyException e) {
@@ -133,6 +144,7 @@ public class ReviewService {
             review = reviewStorage.findById(id)
                     .orElseThrow(() -> new ReviewNotFoundException("Отзыв не найден"));
             review.addDislikeToUseful();
+            reviewStorage.updateLikeOrDislike(review);
             reviewStorage.update(review);
 
         } catch (DuplicateKeyException e) {
@@ -151,6 +163,7 @@ public class ReviewService {
             review = reviewStorage.findById(id)
                     .orElseThrow(() -> new ReviewNotFoundException("Отзыв не найден"));
             review.addLikeToUseful();
+            reviewStorage.updateLikeOrDislike(review);
             reviewStorage.update(review);
 
         } catch (DuplicateKeyException e) {

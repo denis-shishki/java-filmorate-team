@@ -66,7 +66,6 @@ create table if not exists review
     is_positive BOOLEAN not null,
     user_id integer references users (user_id) on delete cascade,
     film_id integer references films (film_id) on delete cascade,
-    unique (user_id, film_id),
     useful integer not null
 );
 

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dao;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -41,11 +42,11 @@ public class ReviewDbStorage implements ReviewStorage {
                 "film_id", review.getFilmId(),
                 "useful", review.getUseful()
         ));
-        review.setId(id);
+        review.setReviewId(id);
 
         Review saveReview = findById(id)
                 .orElseThrow(() -> new ReviewNotFoundException("Произошла ошибка при сохранении отзыва"));
-        log.info("Отзыв с id = {} успешно сохранен", review.getId());
+        log.info("Отзыв с id = {} успешно сохранен", review.getReviewId());
         return saveReview;
     }
 
@@ -55,7 +56,12 @@ public class ReviewDbStorage implements ReviewStorage {
         Review review;
 
         ReviewMapper reviewMapper = new ReviewMapper();
-        review = jdbcTemplate.queryForObject(sql, reviewMapper, id);
+
+        try {
+            review = jdbcTemplate.queryForObject(sql, reviewMapper, id);
+        } catch (DataAccessException e) {
+            return Optional.empty();
+        }
 
         if (review == null) {
             return Optional.empty();
@@ -65,23 +71,22 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Review update(Review review) {
-        final int reviewId = review.getId();
+    public Optional<Review> update(Review review) {
+
+        final int reviewId = review.getReviewId();
         final String sql = "UPDATE review " +
-                "SET content = ?, is_positive = ?, user_id = ?, film_id = ?, useful = ?" +
+                "SET content = ?, is_positive = ?" +
                 "WHERE review_id = ?;";
 
         jdbcTemplate.update(sql,
                 review.getContent(),
                 review.getIsPositive(),
-                review.getUserId(),
-                review.getFilmId(),
-                review.getUseful(),
                 reviewId
         );
 
-        log.info("Отзыв = {} успешно обновлен", review.getId());
-        return review;
+        Optional<Review> updateReview = findById(reviewId);
+        log.info("Отзыв = {} успешно обновлен", review.getReviewId());
+        return updateReview;
     }
 
     @Override
@@ -107,6 +112,19 @@ public class ReviewDbStorage implements ReviewStorage {
         return jdbcTemplate.query(sql, this::makeReview, filmId, count);
     }
 
+    @Override
+    public void updateLikeOrDislike(Review review) {
+        final int reviewId = review.getReviewId();
+        final String sql = "UPDATE review " +
+                "SET useful = ?" +
+                "WHERE review_id = ?;";
+
+        jdbcTemplate.update(sql,
+                review.getUseful(),
+                reviewId
+        );
+    }
+
     private Review makeReview(ResultSet rs, int row) throws SQLException {
         return new Review(rs.getInt("review_id"),
                 rs.getString("content"),
@@ -124,7 +142,7 @@ public class ReviewDbStorage implements ReviewStorage {
         public Review mapRow(ResultSet rs, int rowNum) throws SQLException {
 
             return Review.builder()
-                    .id(rs.getInt("review_id"))
+                    .reviewId(rs.getInt("review_id"))
                     .content(rs.getString("content"))
                     .isPositive(rs.getBoolean("is_positive"))
                     .userId(rs.getInt("user_id"))
