@@ -70,4 +70,10 @@ public class FilmController {
     public List<Film> getSortedFilms(@PathVariable Integer directorId, @RequestParam String sortBy) {
         return filmService.getSortedFilms(directorId, sortBy);
     }
+
+    @GetMapping("/search")
+    public List<Film> getTopFilmsByGivenSearch(@RequestParam(name = "query") String query,
+                                               @RequestParam(name = "by", defaultValue = "") String by) {
+        return filmService.getTopFilmsByGivenSearch(query, by);
+    }
 }
