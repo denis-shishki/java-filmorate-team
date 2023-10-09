@@ -79,16 +79,23 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getTopRatedFilms(int count) {
+    public List<Film> getTopRatedFilms(int count, Integer genreId) {
+        String sqlQueryIfGenreId = "AND fg.GENRE_ID = ? ";
+        if (genreId == null) sqlQueryIfGenreId = "";
         final String sqlQuery = "SELECT f.*, m.mpa_name " +
                 "FROM films AS f " +
                 "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
                 "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                 "LEFT JOIN film_genre AS fg ON f.film_id = fg.film_id " +
+                sqlQueryIfGenreId +
                 "GROUP BY f.film_id " +
                 "ORDER BY COUNT(l.user_id) DESC " +
                 "LIMIT ? ";
-        return jdbcTemplate.query(sqlQuery, this::makeFilm, count);
+        if (genreId == null) {
+            return jdbcTemplate.query(sqlQuery, this::makeFilm, count);
+        } else {
+            return jdbcTemplate.query(sqlQuery, this::makeFilm, genreId, count);
+        }
     }
 
     @Override
@@ -171,7 +178,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void writeDirector(Film film) {
-        if (film.getDirectors() == null || film.getDirectors().isEmpty()) return;
+        if (film.getDirectors() == null || film.getDirectors().isEmpty()) {
+            film.setDirectors(new HashSet<>());
+            return;
+        }
         List<Director> directors = new ArrayList<>(film.getDirectors());
         jdbcTemplate.batchUpdate(
                 "INSERT INTO film_director (film_id, director_id) VALUES (?, ?); ",

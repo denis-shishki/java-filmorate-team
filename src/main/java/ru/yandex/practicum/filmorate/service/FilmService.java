@@ -56,8 +56,11 @@ public class FilmService {
         return film;
     }
 
-    public List<Film> getTopRatedFilms(int count) {
-        return filmStorage.getTopRatedFilms(count);
+    public List<Film> getTopRatedFilms(int count, Integer genreId) {
+        List<Film> topRatedFilms = filmStorage.getTopRatedFilms(count, genreId);
+        directorService.setDirectors(topRatedFilms);
+        genreService.setGenres(topRatedFilms);
+        return topRatedFilms;
     }
 
     private void validateFilm(Film film) {
