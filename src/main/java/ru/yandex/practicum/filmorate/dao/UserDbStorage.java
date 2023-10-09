@@ -31,7 +31,7 @@ public class UserDbStorage implements UserStorage {
     public void addEvent(Event event) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("events")
-                .usingGeneratedKeyColumns("event_id");;
+                .usingGeneratedKeyColumns("event_id");
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("timestamp", event.getTimestamp());
@@ -43,8 +43,6 @@ public class UserDbStorage implements UserStorage {
         simpleJdbcInsert.execute(parameters);
     }
 
-    // Рассматриваем вариант где в ответ попадают все записи пользователя и только лайки с отзывами друзей.
-    // Еще есть вариант, где у пользователя будет выводиться только добавление и удаление друзей
     @Override
     public Collection<Event> findAllEventsByUserId(int userId) {
         String sqlQuery = "SELECT * " +

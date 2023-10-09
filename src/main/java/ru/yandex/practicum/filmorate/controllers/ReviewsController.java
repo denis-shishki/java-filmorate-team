@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.service.LikeService;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
@@ -18,7 +17,6 @@ import java.util.Optional;
 public class ReviewsController {
 
     private final ReviewService reviewService;
-    private final LikeService likeService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
