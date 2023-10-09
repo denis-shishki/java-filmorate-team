@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.constants.EventType;
+import ru.yandex.practicum.filmorate.constants.Operation;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ReviewAlreadyLikedException;
 import ru.yandex.practicum.filmorate.exceptions.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -29,6 +29,7 @@ public class ReviewService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final LikeService likeService;
+    private final UserService userService;
 
     public Review createReview(Review review) {
         log.info("Поступил запрос на создание отзыва с телом = {}", review);
@@ -38,7 +39,10 @@ public class ReviewService {
 
         userStorage.findUser(review.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("Попытка оставить отзыв несуществующим пользователем"));
-        return reviewStorage.create(review);
+
+        Review newReview = reviewStorage.create(review);
+        userService.addEvent(newReview.getUserId(), EventType.REVIEW, Operation.ADD, newReview.getReviewId());
+        return newReview;
     }
 
     public Review getReviewById(Integer id) {
@@ -54,7 +58,15 @@ public class ReviewService {
     public Optional<Review> updateReview(Review review) {
         log.info("Поступил запрос на обновление отзыва id = {}, с телом = {}", review.getReviewId(), review);
 
-        return reviewStorage.update(review);
+        Optional<Review> optionalReview = reviewStorage.update(review);
+        if (optionalReview.isEmpty()){
+            throw new ReviewNotFoundException("Отзыва с таким идентификатором не найдено");
+        }
+
+        Review updateReview = optionalReview.get();
+        userService.addEvent(updateReview.getUserId(), EventType.REVIEW, Operation.UPDATE, updateReview.getFilmId());
+
+        return optionalReview;
     }
 
     public void deleteReview(Integer id) {
@@ -63,6 +75,8 @@ public class ReviewService {
         Review review = reviewStorage.findById(id)
                 .orElseThrow(() -> new ReviewNotFoundException("Запрашиваемый отзыв не существует"));
         reviewStorage.delete(id);
+
+        userService.addEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getFilmId());
     }
 
     public List<Review> getAllReviews() {
@@ -76,7 +90,7 @@ public class ReviewService {
     public List<Review> getAllReviewsByFilm(Integer filmId, int count) {
         log.info("Поступил запрос на получения отзывов к фильму = {}, в количестве = {}", filmId, count);
 
-        Film film = filmStorage.findFilm(filmId)
+        filmStorage.findFilm(filmId)
                 .orElseThrow(() -> new FilmNotFoundException("Запрашиваемый фильм не существует"));
 
         List<Review> allReviewsByFilm;
@@ -95,7 +109,7 @@ public class ReviewService {
 
     public void likeReview(Integer id, Integer userId) {
 
-        User user = userStorage.findUser(userId)
+        userStorage.findUser(userId)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
         Review review;
         try {
@@ -114,7 +128,7 @@ public class ReviewService {
     }
 
     public void disLikeReview(Integer id, Integer userId) {
-        User user = userStorage.findUser(userId)
+        userStorage.findUser(userId)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
         Review review;
         try {
@@ -135,7 +149,7 @@ public class ReviewService {
 
     public void deleteLikeReview(Integer id, Integer userId) {
 
-        User user = userStorage.findUser(userId)
+        userStorage.findUser(userId)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
         Review review;
         try {
@@ -154,7 +168,7 @@ public class ReviewService {
     }
 
     public void deleteDislikeReview(Integer id, Integer userId) {
-        User user = userStorage.findUser(userId)
+        userStorage.findUser(userId)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
         Review review;
         try {
