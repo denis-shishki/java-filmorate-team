@@ -26,4 +26,28 @@ public class LikeDbStorage implements LikeStorage {
             throw new UserNotFoundException("Пользователь не найден.");
         }
     }
+
+    @Override
+    public void likeReview(Integer id, int userId) {
+        final String sql = "INSERT INTO likes_review (review_id, user_id) VALUES (?, ?)";
+        jdbcTemplate.update(sql, id, userId);
+    }
+
+    @Override
+    public void dislikeReview(Integer id, Integer userId) {
+        final String sql = "INSERT INTO likes_review (review_id, user_id) VALUES (?, ?)";
+        jdbcTemplate.update(sql, id, userId);
+    }
+
+    @Override
+    public void deleteLikeReview(Integer id, Integer userId) {
+        final String sql = "DELETE FROM likes_review WHERE review_id = ? AND user_id = ?";
+        jdbcTemplate.update(sql, id, userId);
+    }
+
+    @Override
+    public void deleteDislikeReview(Integer id, Integer userId) {
+        final String sql = "DELETE FROM likes_review WHERE review_id = ? AND user_id = ?";
+        jdbcTemplate.update(sql, id, userId);
+    }
 }

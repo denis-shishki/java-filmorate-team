@@ -34,30 +34,31 @@ public class FilmController {
         return filmService.updateFilm(film);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{filmId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteFilm(@PathVariable("id") Integer id) {
-        filmService.deleteFilm(id);
+    public void deleteFilm(@PathVariable("filmId") Integer filmId) {
+        filmService.deleteFilm(filmId);
     }
 
-    @GetMapping("/{id}")
-    public Film findFilm(@PathVariable Integer id) {
-        return filmService.findFilm(id);
+    @GetMapping("/{filmId}")
+    public Film findFilm(@PathVariable Integer filmId) {
+        return filmService.findFilm(filmId);
     }
 
-    @PutMapping("/{id}/like/{userId}")
-    public void likeFilm(@PathVariable Integer id, @PathVariable Integer userId) {
-        likeService.likeFilm(id, userId);
+    @PutMapping("/{filmId}/like/{userId}")
+    public void likeFilm(@PathVariable Integer filmId, @PathVariable Integer userId) {
+        likeService.likeFilm(filmId, userId);
     }
 
-    @DeleteMapping("/{id}/like/{userId}")
-    public void deleteLike(@PathVariable Integer id, @PathVariable Integer userId) {
-        likeService.deleteLike(id, userId);
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public void deleteLike(@PathVariable Integer filmId, @PathVariable Integer userId) {
+        likeService.deleteLike(filmId, userId);
     }
 
     @GetMapping("/popular")
-    public List<Film> getTopRatedFilms(@RequestParam(defaultValue = "10", required = false) @Positive int count) {
-        return filmService.getTopRatedFilms(count);
+    public List<Film> getTopRatedFilms(@RequestParam(defaultValue = "10", required = false) @Positive int count,
+                                       @RequestParam(required = false) Integer genreId) {
+        return filmService.getTopRatedFilms(count, genreId);
     }
 
     @GetMapping("/common")
@@ -69,5 +70,11 @@ public class FilmController {
     @GetMapping("/director/{directorId}")
     public List<Film> getSortedFilms(@PathVariable Integer directorId, @RequestParam String sortBy) {
         return filmService.getSortedFilms(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> getTopFilmsByGivenSearch(@RequestParam(name = "query") String query,
+                                               @RequestParam(name = "by", defaultValue = "") String by) {
+        return filmService.getTopFilmsByGivenSearch(query, by);
     }
 }
