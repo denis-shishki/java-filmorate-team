@@ -72,6 +72,13 @@ public class FilmService {
         }
     }
 
+    public List<Film> getTopFilmsByGivenSearch(String query, String by) {
+        List<Film> filmsByGivenSearch = filmStorage.getTopFilmsByGivenSearch(query, by);
+        genreService.setGenres(filmsByGivenSearch);
+        directorService.setDirectors(filmsByGivenSearch);
+        return filmsByGivenSearch;
+    }
+
     private void checkFilm(Integer id) {
         if (filmStorage.findFilm(id).isEmpty()) {
             throw new FilmNotFoundException("Фильм не найден.");
@@ -82,7 +89,17 @@ public class FilmService {
         User user = userService.findUser(userId);
         User friend = userService.findUser(friendId);
 
-         return filmStorage.getCommonFilms(userId, friendId);
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
+
+    public List<Film> getSortedFilms(Integer directorId, String sortBy) {
+        List<Film> sortedFilms = filmStorage.getSortedFilms(directorId, sortBy);
+        if (sortedFilms.isEmpty()) {
+            throw new DirectorNotFoundException("Режиссёр не найден.");
+        }
+        directorService.setDirectors(sortedFilms);
+        genreService.setGenres(sortedFilms);
+        return sortedFilms;
     }
 
     public List<Film> getSortedFilms(Integer directorId, String sortBy) {

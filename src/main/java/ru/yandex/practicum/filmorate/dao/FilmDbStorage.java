@@ -15,12 +15,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -137,6 +132,18 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
+    @Override
+    public List<Film> getTopFilmsByGivenSearch(String query, String by) {
+        final String sqlQuery = String.format("SELECT f.*, m.mpa_name FROM FILMS AS f " +
+                "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                "LEFT JOIN film_director AS fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
+                "%s " +
+                "GROUP BY f.film_id ORDER BY COUNT(l.user_id) DESC ", sortedSearch(query, by));
+        return jdbcTemplate.query(sqlQuery, this::makeFilm);
+    }
+
     private List<Film> getFilms(Integer directorId, String sqlQuery) {
         return jdbcTemplate.query(sqlQuery, this::makeFilm, directorId);
     }
@@ -200,5 +207,19 @@ public class FilmDbStorage implements FilmStorage {
                 rs.getInt("duration"),
                 new Mpa(rs.getInt("mpa_id"), rs.getString("mpa_name"))
         );
+    }
+
+    private String sortedSearch(String query, String by) {
+        String qu = "'%" + query + "%'";
+        String[] bySearch = by.split(",");
+        if (bySearch.length == 1) {
+            if (bySearch[0].contains("director")) {
+                return String.format("WHERE lower(d.director_name) LIKE lower(%s)", qu);
+            }
+            if (bySearch[0].contains("title")) {
+                return String.format("WHERE lower(f.film_name) LIKE lower(%s)", qu);
+            }
+        }
+        return String.format("WHERE lower(f.film_name) LIKE lower(%s) OR lower(d.director_name) LIKE lower(%s)", qu, qu);
     }
 }
