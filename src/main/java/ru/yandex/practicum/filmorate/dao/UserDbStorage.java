@@ -28,22 +28,6 @@ public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<Event> findAllEventsByUserId(int userId) {
-        String sqlQuery = "SELECT * " +
-                "FROM events " +
-                "WHERE user_id = ? " +
-                "OR user_id " +
-                "IN(SELECT user_id " +
-                "FROM users " +
-                "WHERE user_id " +
-                "IN(SELECT friend_id " +
-                "FROM friends " +
-                "WHERE user_id=?)) " +
-                "AND event_type_id in (1,2)";
-        return new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeEvent, userId, userId));
-    }
-
-    @Override
     public void addEvent(Event event) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("events")
@@ -57,6 +41,22 @@ public class UserDbStorage implements UserStorage {
         parameters.put("entity_id", event.getEntityId());
 
         simpleJdbcInsert.execute(parameters);
+    }
+
+    @Override
+    public Collection<Event> findAllEventsByUserId(int userId) {
+        String sqlQuery = "SELECT * " +
+                          "FROM events " +
+                          "WHERE user_id = ? " +
+                          "OR user_id " +
+                          "IN(SELECT user_id " +
+                             "FROM users " +
+                             "WHERE user_id " +
+                             "IN(SELECT friend_id " +
+                                "FROM friends " +
+                                "WHERE user_id=?)) " +
+                          "AND event_type_id in (1,2)";
+        return new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeEvent, userId, userId));
     }
 
     @Override
