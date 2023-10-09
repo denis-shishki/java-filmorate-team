@@ -56,8 +56,11 @@ public class FilmService {
         return film;
     }
 
-    public List<Film> getTopRatedFilms(int count) {
-        return filmStorage.getTopRatedFilms(count);
+    public List<Film> getTopRatedFilms(int count, Integer genreId) {
+        List<Film> topRatedFilms = filmStorage.getTopRatedFilms(count, genreId);
+        directorService.setDirectors(topRatedFilms);
+        genreService.setGenres(topRatedFilms);
+        return topRatedFilms;
     }
 
     private void validateFilm(Film film) {
@@ -90,16 +93,6 @@ public class FilmService {
         User friend = userService.findUser(friendId);
 
         return filmStorage.getCommonFilms(userId, friendId);
-    }
-
-    public List<Film> getSortedFilms(Integer directorId, String sortBy) {
-        List<Film> sortedFilms = filmStorage.getSortedFilms(directorId, sortBy);
-        if (sortedFilms.isEmpty()) {
-            throw new DirectorNotFoundException("Режиссёр не найден.");
-        }
-        directorService.setDirectors(sortedFilms);
-        genreService.setGenres(sortedFilms);
-        return sortedFilms;
     }
 
     public List<Film> getSortedFilms(Integer directorId, String sortBy) {

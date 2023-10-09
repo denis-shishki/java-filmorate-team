@@ -39,10 +39,10 @@ public class UserController {
         return userService.updateUser(user);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable int id) {
-        userService.deleteUser(id);
+    public void deleteUser(@PathVariable("userId") int userId) {
+        userService.deleteUser(userId);
     }
 
     @GetMapping("/{id}")
