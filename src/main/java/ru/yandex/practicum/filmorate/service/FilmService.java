@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +23,18 @@ public class FilmService {
     private final GenreService genreService;
     private final UserService userService;
     private final DirectorService directorService;
+
+    public Collection<Film> findFilmsRecommendationsForUser(int userId) {
+        userService.findUser(userId);
+
+        List<Integer> filmIdsByUser = filmStorage.findLikeFilmIdsByUserId(userId);
+        List<Integer> userIds = userService.findAllUserIds();
+
+        Map<Integer, List<Integer>> collects = new HashMap<>(); //придумай норм имя
+
+
+    }
+
 
     public List<Film> findAllFilms() {
         List<Film> allFilms = filmStorage.findAllFilms();
@@ -89,8 +101,8 @@ public class FilmService {
     }
 
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
-        User user = userService.findUser(userId);
-        User friend = userService.findUser(friendId);
+        userService.findUser(userId);
+        userService.findUser(friendId);
 
         return filmStorage.getCommonFilms(userId, friendId);
     }

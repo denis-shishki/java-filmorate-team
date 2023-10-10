@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,6 +29,27 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM films AS f " +
                 "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id ";
         return jdbcTemplate.query(sqlQuery, this::makeFilm);
+    }
+
+    @Override
+    public List<Film> findFilmsByIds(List<Integer> filmIds) {
+        String condition = filmIds.stream()
+                .map(id -> "?")
+                .collect(Collectors.joining(", "));
+
+        final String sqlQuery = "SELECT film_id, film_name, description, release_date, duration, f.mpa_id, m.mpa_name " +
+                "FROM films AS f " +
+                "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                "WHERE film_id IN (" + condition + ")";
+        return jdbcTemplate.query(sqlQuery, this::makeFilm, filmIds);
+    }
+
+    @Override
+    public List<Integer> findLikeFilmIdsByUserId(int userId) {
+        final String sqlQuery = "SELECT film_id " +
+                "FROM likes " +
+                "WHERE user_id = ?";
+        return jdbcTemplate.query(sqlQuery, (rs, row) -> rs.getInt("film_id") , userId);
     }
 
     @Override

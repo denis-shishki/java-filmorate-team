@@ -69,4 +69,9 @@ public class UserController {
     public Collection<User> findCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         return userService.findCommonFriends(id, otherId);
     }
+
+    @GetMapping("/{id}/recommendations")
+    public Collection<User> findCommonFriends(@PathVariable int id) { ////
+        return userService.findCommonFriends(id, otherId);
+    }
 }

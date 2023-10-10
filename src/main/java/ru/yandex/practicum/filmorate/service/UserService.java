@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,10 @@ import java.util.Collection;
 public class UserService {
 
     private final UserStorage userStorage;
+
+    public List<Integer> findAllUserIds() {
+        return userStorage.findAllUserIds();
+    }
 
     public Collection<User> findAllUsers() {
         return userStorage.findAllUsers();
