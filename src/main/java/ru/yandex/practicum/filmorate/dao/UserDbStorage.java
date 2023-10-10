@@ -28,7 +28,15 @@ public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addEvent(Event event) {
+    public void addEvent(int userId, EventType eventType, Operation operation, int entityId) {
+        Event event = Event.builder()
+                .timestamp(System.currentTimeMillis())
+                .userId(userId)
+                .eventType(eventType)
+                .operation(operation)
+                .entityId(entityId)
+                .entityId(entityId)
+                .build();
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("events")
                 .usingGeneratedKeyColumns("event_id");

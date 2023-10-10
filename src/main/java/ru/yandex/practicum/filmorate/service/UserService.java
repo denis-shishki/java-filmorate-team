@@ -31,15 +31,7 @@ public class UserService {
     }
 
     public void addEvent(int userId, EventType eventType, Operation operation, int entityId) {
-        Event newEvent = Event.builder()
-                .timestamp(System.currentTimeMillis())
-                .userId(userId)
-                .eventType(eventType)
-                .operation(operation)
-                .entityId(entityId)
-                .entityId(entityId)
-                .build();
-        userStorage.addEvent(newEvent);
+        userStorage.addEvent(userId, eventType, operation, entityId);
     }
 
     public User createUser(User user) {

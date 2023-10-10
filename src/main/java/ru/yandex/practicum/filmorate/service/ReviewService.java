@@ -64,7 +64,7 @@ public class ReviewService {
         }
 
         Review updateReview = optionalReview.get();
-        userService.addEvent(updateReview.getUserId(), EventType.REVIEW, Operation.UPDATE, updateReview.getFilmId());
+        userService.addEvent(updateReview.getUserId(), EventType.REVIEW, Operation.UPDATE, updateReview.getReviewId());
 
         return optionalReview;
     }
@@ -76,7 +76,7 @@ public class ReviewService {
                 .orElseThrow(() -> new ReviewNotFoundException("Запрашиваемый отзыв не существует"));
         reviewStorage.delete(id);
 
-        userService.addEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getFilmId());
+        userService.addEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getReviewId());
     }
 
     public List<Review> getAllReviews() {

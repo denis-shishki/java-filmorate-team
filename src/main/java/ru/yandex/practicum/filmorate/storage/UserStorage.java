@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import ru.yandex.practicum.filmorate.constants.EventType;
+import ru.yandex.practicum.filmorate.constants.Operation;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -8,7 +10,7 @@ import java.util.Optional;
 
 public interface UserStorage {
 
-    void addEvent(Event event);
+    void addEvent(int userId, EventType eventType, Operation operation, int entityId);
 
     Collection<Event> findAllEventsByUserId(int userId);
 
