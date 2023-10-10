@@ -59,7 +59,7 @@ public class ReviewService {
         log.info("Поступил запрос на обновление отзыва id = {}, с телом = {}", review.getReviewId(), review);
 
         Optional<Review> optionalReview = reviewStorage.update(review);
-        if (optionalReview.isEmpty()){
+        if (optionalReview.isEmpty()) {
             throw new ReviewNotFoundException("Отзыва с таким идентификатором не найдено");
         }
 

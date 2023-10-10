@@ -68,14 +68,14 @@ public class UserService {
         checkUser(id);
         checkUser(friendId);
         userStorage.addFriend(id, friendId);
-        addEvent(id, EventType.FRIEND,Operation.ADD, friendId);
+        addEvent(id, EventType.FRIEND, Operation.ADD, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
         checkUser(id);
         checkUser(friendId);
         userStorage.deleteFriend(id, friendId);
-        addEvent(id, EventType.FRIEND,Operation.REMOVE, friendId);
+        addEvent(id, EventType.FRIEND, Operation.REMOVE, friendId);
     }
 
     public Collection<User> findAllFriends(int id) {
