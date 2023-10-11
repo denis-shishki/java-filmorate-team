@@ -34,14 +34,15 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findFilmsByIds(List<Integer> filmIds) {
         String condition = filmIds.stream()
-                .map(id -> "?")
+                .map(Object::toString)
                 .collect(Collectors.joining(", "));
 
         final String sqlQuery = "SELECT film_id, film_name, description, release_date, duration, f.mpa_id, m.mpa_name " +
                 "FROM films AS f " +
                 "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                 "WHERE film_id IN (" + condition + ")";
-        return jdbcTemplate.query(sqlQuery, this::makeFilm, filmIds);
+
+        return jdbcTemplate.query(sqlQuery, this::makeFilm);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class FilmDbStorage implements FilmStorage {
         final String sqlQuery = "SELECT film_id " +
                 "FROM likes " +
                 "WHERE user_id = ?";
-        return jdbcTemplate.query(sqlQuery, (rs, row) -> rs.getInt("film_id") , userId);
+        return jdbcTemplate.query(sqlQuery, (rs, row) -> rs.getInt("film_id"), userId);
     }
 
     @Override

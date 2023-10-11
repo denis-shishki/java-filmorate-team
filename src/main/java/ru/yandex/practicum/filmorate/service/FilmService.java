@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
@@ -23,18 +22,6 @@ public class FilmService {
     private final GenreService genreService;
     private final UserService userService;
     private final DirectorService directorService;
-
-    public Collection<Film> findFilmsRecommendationsForUser(int userId) {
-        userService.findUser(userId);
-
-        List<Integer> filmIdsByUser = filmStorage.findLikeFilmIdsByUserId(userId);
-        List<Integer> userIds = userService.findAllUserIds();
-
-        Map<Integer, List<Integer>> collects = new HashMap<>(); //придумай норм имя
-
-
-    }
-
 
     public List<Film> findAllFilms() {
         List<Film> allFilms = filmStorage.findAllFilms();
