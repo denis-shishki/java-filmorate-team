@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.constants;
 
 public enum SortBy {
     LIKES("likes"),
