@@ -13,13 +13,20 @@ import ru.yandex.practicum.filmorate.dao.LikeDbStorage;
 public class LikeService {
     private final LikeDbStorage likeDbStorage;
     private final UserService userService;
+    private final FilmService filmService;
+
 
     public void likeFilm(Integer filmId, Integer userId) {
+        userService.findUser(userId);
+        filmService.findFilm(filmId);
+
         likeDbStorage.likeFilm(filmId, userId);
         userService.addEvent(userId, EventType.LIKE, Operation.ADD, filmId);
     }
 
     public void deleteLike(Integer filmId, Integer userId) {
+        userService.findUser(userId);
+        filmService.findFilm(filmId);
         likeDbStorage.deleteLike(filmId, userId);
         userService.addEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }

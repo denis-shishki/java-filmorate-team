@@ -59,4 +59,10 @@ public class ErrorHandler {
         log.warn("Exception: ", e);
         return new ErrorResponse("Произошла непредвиденная ошибка.");
     }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleDirectorNotFound(final DirectorNotFoundException e) {
+        log.warn("Director not found exception: ", e);
+        return new ErrorResponse(e.getMessage());
+    }
 }

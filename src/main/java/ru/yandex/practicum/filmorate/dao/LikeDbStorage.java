@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class LikeDbStorage implements LikeStorage {
@@ -21,10 +22,8 @@ public class LikeDbStorage implements LikeStorage {
     @Override
     public void deleteLike(Integer filmId, Integer userId) {
         final String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-        int status = jdbcTemplate.update(sqlQuery, filmId, userId);
-        if (status != 1) {
-            throw new UserNotFoundException("Пользователь не найден.");
-        }
+        jdbcTemplate.update(sqlQuery, filmId, userId);
+
     }
 
     @Override
