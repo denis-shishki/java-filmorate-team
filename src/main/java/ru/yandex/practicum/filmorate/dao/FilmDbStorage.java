@@ -79,24 +79,20 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getTopRatedFilms(int count, Integer genreId) {
-        String sqlQueryIfGenreId = "AND fg.GENRE_ID = ? ";
-        if (genreId == null) sqlQueryIfGenreId = "";
+    public List<Film> getTopRatedFilms(int count, Integer genreId, String year) {
+        String sqlQueryByGenreAndId = composingSqlQuery(genreId, year);
         final String sqlQuery = "SELECT f.*, m.mpa_name " +
                 "FROM films AS f " +
                 "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
                 "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
                 "LEFT JOIN film_genre AS fg ON f.film_id = fg.film_id " +
-                sqlQueryIfGenreId +
+                sqlQueryByGenreAndId +
                 "GROUP BY f.film_id " +
                 "ORDER BY COUNT(l.user_id) DESC " +
                 "LIMIT ? ";
-        if (genreId == null) {
-            return jdbcTemplate.query(sqlQuery, this::makeFilm, count);
-        } else {
-            return jdbcTemplate.query(sqlQuery, this::makeFilm, genreId, count);
-        }
+        return jdbcTemplate.query(sqlQuery, this::makeFilm, count);
     }
+
 
     @Override
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
@@ -231,5 +227,16 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
         return String.format("WHERE lower(f.film_name) LIKE lower(%s) OR lower(d.director_name) LIKE lower(%s)", qu, qu);
+    }
+
+    private String composingSqlQuery(Integer genreId, String year) {
+        if (genreId != null && year != null) {
+            return String.format("WHERE fg.GENRE_ID = %s AND EXTRACT(YEAR FROM f.RELEASE_DATE) = %s", genreId, year);
+        } else if (genreId != null && year == null) {
+            return String.format("WHERE fg.GENRE_ID = %s", genreId);
+        } else if (genreId == null && year != null) {
+            return String.format("WHERE EXTRACT(YEAR FROM f.RELEASE_DATE) = %s", year);
+        }
+        return "";
     }
 }
