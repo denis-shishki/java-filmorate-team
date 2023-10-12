@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserStorage {
@@ -15,6 +16,8 @@ public interface UserStorage {
     Collection<Event> findAllEventsByUserId(int userId);
 
     Collection<User> findAllUsers();
+
+    List<Integer> findAllUserIds();
 
     User createUser(User user);
 

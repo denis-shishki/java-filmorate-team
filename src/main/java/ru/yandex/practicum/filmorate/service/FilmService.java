@@ -7,12 +7,11 @@ import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -56,8 +55,8 @@ public class FilmService {
         return film;
     }
 
-    public List<Film> getTopRatedFilms(int count, Integer genreId) {
-        List<Film> topRatedFilms = filmStorage.getTopRatedFilms(count, genreId);
+    public List<Film> getTopRatedFilms(int count, Integer genreId, String year) {
+        List<Film> topRatedFilms = filmStorage.getTopRatedFilms(count, genreId, year);
         directorService.setDirectors(topRatedFilms);
         genreService.setGenres(topRatedFilms);
         return topRatedFilms;
@@ -89,8 +88,8 @@ public class FilmService {
     }
 
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
-        User user = userService.findUser(userId);
-        User friend = userService.findUser(friendId);
+        userService.findUser(userId);
+        userService.findUser(friendId);
 
         return filmStorage.getCommonFilms(userId, friendId);
     }

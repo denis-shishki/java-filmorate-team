@@ -9,6 +9,10 @@ public interface FilmStorage {
 
     List<Film> findAllFilms();
 
+    List<Film> findFilmsByIds(List<Integer> filmIds);
+
+    List<Integer> findLikeFilmIdsByUserId(int userId);
+
     Film createFilm(Film film);
 
     Film updateFilm(Film film);
@@ -17,7 +21,7 @@ public interface FilmStorage {
 
     Optional<Film> findFilm(Integer filmId);
 
-    List<Film> getTopRatedFilms(int count, Integer genreId);
+    List<Film> getTopRatedFilms(int count, Integer genreId, String year);
 
     List<Film> getCommonFilms(Integer userId, Integer friendId);
 

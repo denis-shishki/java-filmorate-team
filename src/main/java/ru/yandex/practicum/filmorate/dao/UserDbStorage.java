@@ -85,6 +85,16 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
+    public List<Integer> findAllUserIds() {
+        List<Integer> userIds = new ArrayList<>();
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet("SELECT user_id FROM users");
+        while (rowSet.next()) {
+            userIds.add(rowSet.getInt("user_id"));
+        }
+        return userIds;
+    }
+
+    @Override
     public User createUser(User user) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
