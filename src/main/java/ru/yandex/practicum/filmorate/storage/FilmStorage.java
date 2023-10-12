@@ -9,6 +9,10 @@ public interface FilmStorage {
 
     List<Film> findAllFilms();
 
+    List<Film> findFilmsByIds(List<Integer> filmIds);
+
+    List<Integer> findLikeFilmIdsByUserId(int userId);
+
     Film createFilm(Film film);
 
     Film updateFilm(Film film);
