@@ -111,7 +111,7 @@ public class UserDbStorage implements UserStorage {
                         "FROM friends " +
                         "WHERE user_id=?)";
 
-        return new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeUser, id));
+        return jdbcTemplate.query(sqlQuery, this::makeUser, id);
     }
 
     @Override
