@@ -64,7 +64,7 @@ public class UserDbStorage implements UserStorage {
                                 "FROM friends " +
                                 "WHERE user_id=?)) " +
                           "AND event_type_id in (1,2)";
-        return new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeEvent, userId, userId));
+        return jdbcTemplate.query(sqlQuery, this::makeEvent, userId, userId);
     }
 
     @Override
