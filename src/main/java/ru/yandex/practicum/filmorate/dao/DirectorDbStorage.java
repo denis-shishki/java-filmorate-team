@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -8,9 +9,9 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,23 +61,41 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void setDirectors(List<Film> films) {
-        final String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
+        if (films == null || films.isEmpty()) return;
         final Map<Integer, Film> filmById = films.stream().collect(Collectors.toMap(Film::getId, (f) -> f));
-        if (inSql.isEmpty()) return;
+
+        String createTable = "CREATE TEMPORARY TABLE temp_table (film_id INT)";
+        String addFilmIdsInTable = "INSERT INTO temp_table (film_id) values (?)";
+        String deleteTable = "DROP TABLE temp_table";
+
+        jdbcTemplate.execute(createTable);
+
+        jdbcTemplate.batchUpdate(addFilmIdsInTable,
+                new BatchPreparedStatementSetter() {
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        Film film = films.get(i);
+                        ps.setInt(1, film.getId());
+                    }
+
+                    public int getBatchSize() {
+                        return films.size();
+                    }
+                });
 
         jdbcTemplate.query(
-                String.format("SELECT fd.film_id, fd.director_id, d.director_name " +
-                        "FROM film_director AS fd " +
-                        "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
-                        "WHERE fd.film_id IN (%s)", inSql),
+                "SELECT fd.film_id, fd.director_id, d.director_name " +
+                "FROM film_director AS fd " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
+                "JOIN temp_table AS t ON fd.film_id = t.film_id",
                 (rs) -> {
                     final Film film = filmById.get(rs.getInt("film_id"));
 
                     if (film.getDirectors() != null) {
                         film.addDirector(new Director(rs.getInt("director_id"), rs.getString("director_name")));
                     }
-                },
-                films.stream().map(Film::getId).toArray());
+                });
+
+        jdbcTemplate.execute(deleteTable);
     }
 
     private Director makeDirector(ResultSet rs, int row) throws SQLException {
